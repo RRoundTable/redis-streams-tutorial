@@ -58,4 +58,12 @@ RabbitMQ처럼 하나의 큐 마스터에 모든 메시지가 집중되지 않�
 Reference: https://redis.io/technology/redis-enterprise-cluster-architecture/
 
 
+## Tutorial
 
+```
+docker compose up -d
+```
+
+```
+docker exec -it redis-1 redis-cli -p 7001 --cluster create 10.0.0.11:7001 10.0.0.12:7002 10.0.0.13:7003 10.0.0.14:7004 10.0.0.15:7005 10.0.0.16:7006 --cluster-replicas 1 --cluster-yes
+```
