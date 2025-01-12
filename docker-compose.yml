@@ -108,13 +108,24 @@ services:
       redisclusternet:
         ipv4_address: 10.0.0.16
 
-  worker:
+  producer:
     image: python:3.8-alpine3.10
     restart: on-failure
-    container_name: worker
+    container_name: producer
     volumes:
       - ./app:/usr/local/cluster-tester:z
     entrypoint: /usr/local/cluster-tester/docker-entrypoint.sh
     networks:
       redisclusternet:
         ipv4_address: 10.0.0.20
+
+  consumer:
+    image: python:3.8-alpine3.10
+    restart: on-failure
+    container_name: consumer
+    volumes:
+      - ./app:/usr/local/cluster-tester:z
+    entrypoint: /usr/local/cluster-tester/docker-entrypoint.sh
+    networks:
+      redisclusternet:
+        ipv4_address: 10.0.0.21
