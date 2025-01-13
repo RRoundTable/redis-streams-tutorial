@@ -13,7 +13,6 @@ RabbitMQ는 Cluster구성시 Master Node를 Single로 운영합니다. 따라서
 - Master node가 장애로 인해 중단되기 전에 replication이 완료되지 않았다면, 데이터 손실이 발생할 수 있습니다.
 - Master node가 다운되면 slave 중 하나를 새로운 master로 승격해야 하며, 이 과정에서 downtime이 발생할 수 있습니다.
 
-
 ## 제안: Redis Stream
 
 Redis는 비교적 설정이 간단한 편이고 Shard기반 Multi Master를 제공합니다. 따라서 부하를 분산시킬 수 있으며 Master 오류시 문제를 최소화하고 데이터 손실을 최소화 할 수 있습니다.
@@ -60,17 +59,19 @@ Reference: https://redis.io/technology/redis-enterprise-cluster-architecture/
 
 ## Tutorial
 
-Create redis-cluster
+Redis 클러스터를 생성하기 위해서 아래 명령어를 실행합니다.
+Master, Slave 각각 3개씩 생성됩니다.
 ```
 make redis-cluster
 ```
 
-Produce message
+Redis Cluster에 Message를 생성합니다.
+
 ```
 make producer
 ```
 
-Consume message
+Message를 소비합니다.
 ```
 make consumer
 ```
