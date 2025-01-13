@@ -15,6 +15,8 @@ RabbitMQ는 Cluster구성시 Master Node를 Single로 운영합니다. 따라서
 
 ## 제안: Redis Stream
 
+![alt text](screenshots/diagram.png)
+
 Redis는 비교적 설정이 간단한 편이고 Shard기반 Multi Master를 제공합니다. 따라서 부하를 분산시킬 수 있으며 Master 오류시 문제를 최소화하고 데이터 손실을 최소화 할 수 있습니다.
 Redis로 처리하기 힘든 수준의 부하라면 Kafka를 제안드릴 수 있을 것 같습니다. 다만, On-Premise 배포 특성상 Redis로도 충분한 부하일 것으로 예상되어 Redis를 먼저 제안드리게되었습니다.
 
@@ -110,6 +112,9 @@ make consumer
 
 Redis Exporter의 정보를 Prometheus를 이용해서 Scrape합니다. 이 데이터를 Grafana Dashboard에서 시각화하였습니다.
 
+
 ![alt text](screenshots/cluster.png)
+- Reference: https://grafana.com/grafana/dashboards/21914-redis-cluster/
 
 ![alt text](screenshots/redis_exporter.png)
+- Reference: https://grafana.com/grafana/dashboards/763-redis-dashboard-for-prometheus-redis-exporter-1-x/
