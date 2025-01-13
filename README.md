@@ -18,6 +18,9 @@ RabbitMQ는 Cluster구성시 Master Node를 Single로 운영합니다. 따라서
 Redis는 비교적 설정이 간단한 편이고 Shard기반 Multi Master를 제공합니다. 따라서 부하를 분산시킬 수 있으며 Master 오류시 문제를 최소화하고 데이터 손실을 최소화 할 수 있습니다.
 Redis로 처리하기 힘든 수준의 부하라면 Kafka를 제안드릴 수 있을 것 같습니다. 다만, On-Premise 배포 특성상 Redis로도 충분한 부하일 것으로 예상되어 Redis를 먼저 제안드리게되었습니다.
 
+### Append-Only Log 모델
+Redis Streams는 큐(Queue) 방식이 아닌 Append-Only Log 모델이므로, 메시지 이력을 일정 부분(또는 완전히) 유지할 수 있어 장애 복원이나 재처리 시나리오가 보다 수월합니다. (RabbitMQ Stream도 log방식)
+
 ### 설정의 복잡도
 
 Redis 자체가 비교적 간단한 설정 방식을 가지며, Stream 관련 명령(XADD, XREADGROUP, XACK 등) 역시 직관적입니다.
@@ -60,10 +63,37 @@ Reference: https://redis.io/technology/redis-enterprise-cluster-architecture/
 ## Tutorial
 
 Redis 클러스터를 생성하기 위해서 아래 명령어를 실행합니다.
-Master, Slave 각각 3개씩 생성됩니다.
 ```
 make redis-cluster
 ```
+
+cluster 노드 정보를 확인합니다.
+Master, Slave 각각 3개씩 생성됩니다.
+
+```
+docker exec -it redis-1 redis-cli -p 7001
+127.0.0.1:7001> cluster nodes
+21fdb1f289c80f8b469fa4b949e5bb5f71b6df98 10.0.0.14:7004@17004 slave de5b6c6cbe29e759831487e31c08317cca23008d 0 1736766603439 3 connected
+911bf7ebf83c6f841436a27bafcf374d2ef7fc6c 10.0.0.16:7006@17006 slave d147d15ae692fbc54e6abe5cf0f2dd7223578915 0 1736766603957 2 connected
+d147d15ae692fbc54e6abe5cf0f2dd7223578915 10.0.0.12:7002@17002 master - 0 1736766603000 2 connected 5461-10922
+5ae037b9b6524a36bf5397a940a9ac564146aa55 10.0.0.15:7005@17005 slave 2eb5bd9bf11c91b0a397f90fad4b196b34908064 0 1736766603557 1 connected
+de5b6c6cbe29e759831487e31c08317cca23008d 10.0.0.13:7003@17003 master - 0 1736766601894 3 connected 10923-16383
+2eb5bd9bf11c91b0a397f90fad4b196b34908064 10.0.0.11:7001@17001 myself,master - 0 1736766602000 1 connected 0-5460
+```
+
+| Role   | Node ID                             | IP:Port       | Master Node ID                      | Slot Range    |
+|--------|-------------------------------------|---------------|-------------------------------------|---------------|
+| Master | 2eb5bd9bf11c91b0a397f90fad4b196b34908064 | 10.0.0.11:7001 | -                                   | 0-5460        |
+| Slave  | 5ae037b9b6524a36bf5397a940a9ac564146aa55 | 10.0.0.15:7005 | 2eb5bd9bf11c91b0a397f90fad4b196b34908064 | -             |
+| Master | d147d15ae692fbc54e6abe5cf0f2dd7223578915 | 10.0.0.12:7002 | -                                   | 5461-10922    |
+| Slave  | 911bf7ebf83c6f841436a27bafcf374d2ef7fc6c | 10.0.0.16:7006 | d147d15ae692fbc54e6abe5cf0f2dd7223578915 | -             |
+| Master | de5b6c6cbe29e759831487e31c08317cca23008d | 10.0.0.13:7003 | -                                   | 10923-16383   |
+| Slave  | 21fdb1f289c80f8b469fa4b949e5bb5f71b6df98 | 10.0.0.14:7004 | de5b6c6cbe29e759831487e31c08317cca23008d | -             |
+
+
+Redis Cluster에서는 Shard마다 하나의 Master 노드가 있고, 각 Shard는 여러 Slave 노드를 통해 고가용성을 유지합니다. 이를 통해 부하가 분산되고, 하나의 Master 노드가 다운되더라도 다른 Shard에는 영향이 없습니다. 또한, 비동기 복제를 통해 데이터 유실 및 다운타임을 최소화할 수 있습니다. 다만, 장애 발생 직전의 일부 데이터는 복제되지 않을 수 있습니다.
+
+RabbitMQ는 Single Master 기반의 클러스터링을 지원합니다. 따라서 Master 노드가 다운되면 해당 큐에 대한 접근이 일시적으로 중단될 수 있어 고가용성을 완전히 보장하지는 않습니다. 또한, 데이터 부하가 심할 경우 비동기 복제 방식으로 인해 데이터 유실 가능성이 높아질 수 있습니다.
 
 Redis Cluster에 Message를 생성합니다.
 
@@ -75,3 +105,11 @@ Message를 소비합니다.
 ```
 make consumer
 ```
+
+## Monitoring
+
+Redis Exporter의 정보를 Prometheus를 이용해서 Scrape합니다. 이 데이터를 Grafana Dashboard에서 시각화하였습니다.
+
+![alt text](screenshots/cluster.png)
+
+![alt text](screenshots/redis_exporter.png)
