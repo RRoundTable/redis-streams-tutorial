@@ -141,6 +141,9 @@ services:
     # 여기서는 redis-1 컨테이너의 내부 IP와 포트를 사용합니다.
     environment:
       - REDIS_ADDR=10.0.0.11:7001
+      - REDIS_EXPORTER_IS_CLUSTER=true
+    ports:
+      - "9121:9121"
     networks:
       redisclusternet:
         ipv4_address: 10.0.0.32
@@ -161,6 +164,8 @@ services:
       interval: 10s
       timeout: 15s
       retries: 10
+    ports:
+      - "9090:9090"
     restart: unless-stopped
     networks:
       redisclusternet:
