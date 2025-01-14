@@ -1,6 +1,5 @@
 # redis-streams-tutorial
 
-
 ## 베이스라인: RabbitMQ
 
 ACK설정, Message Persistence에 따라서 메세지 유실이 발생할 수 있습니다.
@@ -56,7 +55,7 @@ Redis Cluster는 여러 샤드 각각에 마스터-슬레이브(Replica)를 구�
 Redis Sentinel 혹은 Cluster는 자동으로 마스터를 감지하고 Failover를 수행해줍니다.
 장애 시점에 따른 일부 데이터(메시지) 손실 가능성은 여전히 존재할 수 있지만, Failover 속도가 상대적으로 빠르고, RDB/AOF를 활용해 유실 범위를 줄일 수 있습니다.
 
-Redis Cluster는 키를 해시 슬롯으로 분산 저장하므로, 특정 노드 장애가 전체 스트림 운영에 치명타가 될 가능성을 줄여줍니다.
+Redis Cluster는 키를 해시 슬롯으로 분산 저장하므로, 특정 노드 장애가 전체 스트림 운영에 치명타가 될 가능성을 줄여줍니다. 또한 동기화 부하도 분산할 수 있습니다.
 RabbitMQ처럼 하나의 큐 마스터에 모든 메시지가 집중되지 않으므로, 부하 분산 및 점진적 확장(노드 증설)이 용이합니다.
 
 Reference: https://redis.io/technology/redis-enterprise-cluster-architecture/
@@ -118,3 +117,15 @@ Redis Exporter의 정보를 Prometheus를 이용해서 Scrape합니다. 이 데�
 
 ![alt text](screenshots/redis_exporter.png)
 - Reference: https://grafana.com/grafana/dashboards/763-redis-dashboard-for-prometheus-redis-exporter-1-x/
+
+## TODO
+
+- [ ]: RabbitMQ도 Stream(Log방식), Shard를 지원합니다. 시간관계상 Redis Stream과 차이를 직접 비교하지 못했습니다.
+- [ ]: Kafka에 대한 검토도 필요합니다. 이번에는 비교적 간단하게 세팅할 수 있는 Redis를 제안드렸습니다.
+
+
+## 마치면서
+
+RabbitMQ에 대한 경험은 없었지만, 조사를 통해 느낀 점은 어떤 도구를 선택하느냐도 중요하지만, 선택한 도구의 기능을 충분히 탐색하고 활용하는 것이 중요하다고 생각합니다. RabbitMQ 역시 Stream, Shard(Plugin), 그리고 Durability를 위한 다양한 설정을 제공하고 있었습니다. 이러한 기능들이 실제로 어느 정도의 성능을 제공하며, 부하 테스트나 실제 환경에서 얼마나 안정적으로 동작하는지 검증하는 것은 필요하다고 생각합니다.
+
+다만, RabbitMQ에는 설계상의 한계도 존재했습니다. Redis와 Kafka는 처음부터 Shard 기반의 분산 아키텍처로 설계된 반면, RabbitMQ는 플러그인을 통해 이와 유사한 기능을 구현해야 하며, 이는 비교적 복잡한 설정과 추가적인 관리 작업을 요구합니다. 이러한 추가 설정은 시스템 설계의 안정성을 다소 저하시킬 가능성이 있어 보입니다.
