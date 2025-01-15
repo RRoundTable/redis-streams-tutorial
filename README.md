@@ -41,10 +41,6 @@ Redis는 클러스터 모드(Sharding)와 Sentinel을 활용한 자동 장애 �
 Redis의 Replica는 master-slave 구조로, 비동기 또는 반동기 복제를 수행하며, 일반적으로 Mirror Queue 대비 구조가 단순합니다.
 동기화 지연이 완전히 없어지는 것은 아니지만, Redis 내부 로직이 단순해 운영 및 모니터링이 상대적으로 용이하고 문제가 발생해도 빠르게 파악하기 쉽습니다.
 
-Redis Streams는 인메모리 기반이어서, 장애 복구 후에 정상 노드(혹은 새 마스터)가 컨슈머 그룹 상태를 빠르게 되찾고, ACK되지 않은 메시지를 신속히 재할당할 수 있습니다.
-Redis Sentinel과 연동하면 장애 발생 시점을 탐지하고 즉시 자동으로 마스터 교체를 진행하므로, 복구 지연 시간이 상대적으로 짧은 편입니다.
-
-
 ### 샤딩(Shard) 기반 다중 마스터
 
 ![](https://redis.io/wp-content/uploads/2022/07/Cluster-Architecture-Diagram-Outline-01.svg?&auto=webp&quality=85,75&width=1200)
