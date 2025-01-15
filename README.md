@@ -104,10 +104,26 @@ Redis Cluster에 Message를 생성합니다.
 make producer
 ```
 
-Message를 소비합니다.
+```
+Task dd8b4e6a-d4fc-4998-ba0a-137a64a38e14 added as message 1736942514273-0
+Task 1798bc2c-5d2a-4bbb-8f09-422abce02ae5 added as message 1736942517281-0
+```
+
+Message를 소비합니다. 시간에 따라서 오래된 Message는 Reclaim됩니다.
+
 ```
 make consumer
 ```
+
+```
+Consumer group 'mygroup' already exists.
+Reclaimed message 1736942584831-0 (idle for 192377ms) for consumer_1.
+Reclaimed message 1736943905201-0 (idle for 176349ms) for consumer_1.
+[Consumer_1] Processing task 732020a2-0220-4c59-a906-4e017353bdc3 (1736944082630-0): Sample data 53984
+[Consumer_0] Processing task e0522baa-9c46-4ef1-a01c-36385717bad2 (1736944084136-0): Sample data 522
+Task 732020a2-0220-4c59-a906-4e017353bdc3 with message id 1736944082630-0 ACKed.
+```
+
 
 ## Monitoring
 
