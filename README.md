@@ -60,6 +60,12 @@ RabbitMQ처럼 하나의 큐 마스터에 모든 메시지가 집중되지 않�
 
 Reference: https://redis.io/technology/redis-enterprise-cluster-architecture/
 
+### 고가용성 확보 및 확장성(K8s) 제안
+
+- StatefulSet 사용: 쿠버네티스(Kubernetes) 환경이라면, Redis Cluster는 StatefulSet 리소스를 사용하여 배포하는 것이 좋습니다.
+- Persistent Volume: 각 Redis 노드는 데이터를 디스크에 영구화해야 하므로, Persistent Volume(예: PVC+StorageClass)을 사용해 스토리지 볼륨을 확보해야 합니다.
+- [Redis Operator](https://github.com/spotahome/redis-operator): 수동으로 Cluster 노드를 설정하고 failover를 관리하는 것보다, Redis Operator(또는 Helm 차트를 활용)를 사용하면 자동화된 클러스터 설정과 장애 복구를 지원받을 수 있습니다.
+
 
 ## Tutorial
 
