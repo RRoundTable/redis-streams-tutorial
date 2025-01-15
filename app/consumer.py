@@ -84,7 +84,7 @@ def reclaim_pending():
             for item in pending_info:
                 message_id = item["message_id"]
                 consumer = item["consumer"]
-                idle = int(item["idle"])  # 메시지가 idle 상태인 시간 (밀리초)
+                idle = int(item["time_since_delivered"])
                 if idle >= IDLE_TIMEOUT:
                     # 메시지 재할당
                     claimed = rc.xclaim(
