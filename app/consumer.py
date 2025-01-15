@@ -31,14 +31,14 @@ def create_consumer_group():
 
 def process_task(message_id, task):
     """
-    작업을 처리하는 함수 (실제 비즈니스 로직 구현)
+    작업을 처리하는 함수
     """
     task_id = task.get("task_id")
     data = task.get("data")
     print(
         f"[{threading.current_thread().name}] Processing task {task_id} ({message_id}): {data}"
     )
-    # 모의 작업 처리
+    # sleep
     time.sleep(2)
     return True
 
@@ -52,7 +52,6 @@ def consumer():
             )
             if not messages:
                 continue
-            # messages 예시: [(stream_key, [(message_id, {field: value, ...}), ...])]
             for stream, msgs in messages:
                 for message_id, data in msgs:
                     # 실제 작업 처리
@@ -87,7 +86,7 @@ def reclaim_pending():
                 consumer = item["consumer"]
                 idle = int(item["idle"])  # 메시지가 idle 상태인 시간 (밀리초)
                 if idle >= IDLE_TIMEOUT:
-                    # 메시지 재할당 (현재 consumer로 claim)
+                    # 메시지 재할당
                     claimed = rc.xclaim(
                         STREAM_KEY,
                         CONSUMER_GROUP,
@@ -105,10 +104,9 @@ def reclaim_pending():
 
 
 if __name__ == "__main__":
-    # 그룹이 없으면 생성 (여러 consumer가 동시에 실행되는 환경에서는 최초 한 번만 수행)
     create_consumer_group()
 
-    # consumer 스레드 실행 (예: 여러 워커)
+    # 2개 consumer 스레드 실행
     consumer_threads = []
     for i in range(2):
         t = threading.Thread(target=consumer, name=f"Consumer_{i}")
